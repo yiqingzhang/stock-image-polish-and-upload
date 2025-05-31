@@ -1,0 +1,5 @@
+archive/
+.env
+auto_works
+doc/
+.DS_Store

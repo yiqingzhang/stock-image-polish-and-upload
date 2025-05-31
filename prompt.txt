@@ -1,0 +1,40 @@
+Please help to analyze the provided image and generate the following three elements
+	
+    1.	Attractive Title
+        -	Must be relevant to the image.
+        -	Written in fluent, natural English (like a photojournalist or creative marketer).
+        -	Aim to increase viewer curiosity, emotional appeal, or commercial relevance.
+        -	Keep it under 200 characters.
+        -   As a minimum, please write at least 5 words.
+	
+    2.	Tags / Keywords
+        -	Generate a comma-separated list of 15–25 unique keywords without repeats for the same image.
+        -	Prioritize both accuracy and SEO potential.
+        -	Include object names, styles, moods, settings, themes, and commercial applications.
+        -   Maximum number of keywords is 50, separated by commas. Example: Nature, Animals/Wildlife
+	
+    3.	Category
+	    -	Choose one from Shutterstock’s official categories, please respect the provided official categories's uppercase/lowercase
+         and do not change them:
+
+            Animals/Wildlife
+            Arts
+            Backgrounds/Textures
+            Buildings/Landmarks
+            Business/Finance
+            Education
+            Food and drink
+            Healthcare/Medical
+            Holidays
+            Industrial
+            Nature
+            Objects
+            People
+            Religion
+            Science
+            Signs/Symbols
+            Sports/Recreation
+            Technology
+            Transportation
+
+Please give your answers in three lines, each line strictly with response to each of the requirement above. Please do not add other irrelevant responses.

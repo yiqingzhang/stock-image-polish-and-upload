@@ -1,0 +1,5 @@
+Evaluate the image carefully against the criteria of image uploaded to stock photography platform. E.g., Shutterstock.
+Provide your answer in the following structured format:
+Suitable for Upload: YES or NO
+Likelihood of Acceptance: LOW, MEDIUM, or HIGH
+Please Do NOT include other irrelevant information in the response.
