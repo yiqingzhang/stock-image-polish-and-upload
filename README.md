@@ -1,4 +1,5 @@
-# Shuttlestock
+# Shutterstock Image Tagger
+
 
 A comprehensive workflow automation tool for preparing and uploading images to stock photography platforms like Shutterstock.
 
