@@ -94,7 +94,7 @@ def process_images(image_folder, output_folder, system_prompt, prompt, region):
         # Check if file is an image (basic check, can be enhanced)
         if any(
             image_file.lower().endswith(ext)
-            for ext in [".jpg", ".jpeg", ".png", ".gif"]
+            for ext in [".jpg", ".jpeg"]
         ):
             image_path = os.path.join(image_folder, image_file)
             print(f"Processing {image_path}...")

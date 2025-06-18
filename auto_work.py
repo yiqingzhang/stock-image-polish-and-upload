@@ -20,6 +20,25 @@ def update_state_completed(state_file, state):
     print(f"State updated to {state} in {state_file}.")
 
 
+def step_0_convert_images(base_folder):
+
+    # step 1:
+    raw_input_path = os.path.join(base_folder, RAW_EXPORT_PATH)
+    assert os.path.exists(
+        raw_input_path
+    ), f"Raw input path {raw_input_path} does not exist."
+    print(f"Converting images in {raw_input_path}...")
+
+    command = f"python 0_convert_images.py '{raw_input_path}'"
+    # run the command to clean files
+    ret = os.system(command)
+    if ret != 0:
+        print(f"Error: Failed to convert files in {raw_input_path}.")
+        return False
+    print("Step 1: convert files done.")
+    return True
+
+
 def step_1_clean_files(base_folder):
 
     # step 1:
@@ -29,7 +48,7 @@ def step_1_clean_files(base_folder):
     ), f"Raw input path {raw_input_path} does not exist."
     print(f"Processing images in {raw_input_path}...")
 
-    command = f"python 1_clean_files.py {raw_input_path}"
+    command = f"python 1_clean_files.py '{raw_input_path}'"
     # run the command to clean files
     ret = os.system(command)
     if ret != 0:
@@ -48,7 +67,7 @@ def step_2_get_images_binary(base_folder):
     ), f"Raw input path {raw_input_path} does not exist."
     print(f"Processing images in {raw_input_path}...")
 
-    command = f"python 2_bedrock_run_binary.py --image_folder {raw_input_path} --output_folder {label_folder}"
+    command = f"python 2_bedrock_run_binary.py --image_folder '{raw_input_path}' --output_folder '{label_folder}'"
     # run the command to get images binary
     ret = os.system(command)
     if ret != 0:
@@ -66,7 +85,7 @@ def step_3_move_files(base_folder):
     copied_dest_folder = os.path.join(base_folder, "3_copied_dest")
     print(f"Copying images in {raw_input_path} to {copied_dest_folder}...")
 
-    command = f"python 3_move_files.py --source_dir {raw_input_path} --label_dir {label_folder} --results_dir {copied_dest_folder}"
+    command = f"python 3_move_files.py --source_dir '{raw_input_path}' --label_dir '{label_folder}' --results_dir '{copied_dest_folder}'"
     # run the command to move files, and check if the command was successful
     # run this command, and check if the command was successful via the return code
     ret = os.system(command)
@@ -84,7 +103,7 @@ def step_3_move_files(base_folder):
 def step_4_delete_folders(base_folder):
     # step 4:
 
-    command = f"python 4_delete_folders.py --base_folder {base_folder}"
+    command = f"python 4_delete_folders.py --base_folder '{base_folder}'"
     # run the command to delete folders
     ret = os.system(command)
     if ret != 0:
@@ -104,7 +123,7 @@ def step_5_generate_tags(base_folder):
     ), f"Copied destination folder {copied_dest_folder} does not exist."
     print(f"Processing images in {copied_dest_folder}...")
 
-    command = f"python 5_generate_tags.py --image_folder {copied_dest_folder} --output_folder {tag_output_folder}"
+    command = f"python 5_generate_tags.py --image_folder '{copied_dest_folder}' --output_folder '{tag_output_folder}'"
     # run the command to get images binary
     ret = os.system(command)
     if ret != 0:
@@ -125,7 +144,7 @@ def step_6_analyze_results(base_folder):
     ), f"Tag output folder {tag_output_folder} does not exist."
     print(f"Analyzing results in {tag_output_folder}...")
 
-    command = f"python 6_result_analysis.py --folder_path {tag_output_folder}"
+    command = f"python 6_result_analysis.py --folder_path '{tag_output_folder}'"
     # run the command to analyze results
     ret = os.system(command)
     if ret != 0:
@@ -147,7 +166,7 @@ def step_7_split_upload_batch(base_folder):
     ), f"Tag output folder {single_output_folder} does not exist."
     print(f"Splitting upload batches in {single_output_folder}...")
     tag_file = os.path.join(base_folder, "6_image_tags.csv")
-    command = f"python 7_split_upload_batch.py --single_output_folder {single_output_folder} --tag_files {tag_file} --batch_output_folder {batch_output_folder}"
+    command = f"python 7_split_upload_batch.py --single_output_folder '{single_output_folder}' --tag_files '{tag_file}' --batch_output_folder '{batch_output_folder}'"
     # run the command to split upload batches
     ret = os.system(command)
     if ret != 0:
@@ -163,9 +182,15 @@ def process_images(base_folder):
     state_file_path = os.path.join(base_folder, "state.txt")
 
     if not os.path.exists(state_file_path):
-        print(f"State file {state_file_path} does not exist. Initializing state to 0.")
-        update_state_completed(state_file_path, 0)
-        state_completed = 0
+        print(f"State file {state_file_path} does not exist. Initializing state to -1.")
+        update_state_completed(state_file_path, -1)
+        state_completed = -1
+
+    state_completed = get_state_completed(state_file_path)
+    if state_completed == -1:
+        ret = step_0_convert_images(base_folder)
+        if ret:
+            update_state_completed(state_file_path, 0)
 
     state_completed = get_state_completed(state_file_path)
     if state_completed == 0:
