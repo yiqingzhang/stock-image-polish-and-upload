@@ -1,4 +1,8 @@
-#!/usr/bin/env python3
+"""
+Batch splitting module.
+
+Splits images and their metadata into batches of 100 for Shutterstock upload.
+"""
 
 import os
 import sys
@@ -9,7 +13,12 @@ from pathlib import Path
 
 
 def create_parser():
-    """Create command line argument parser"""
+    """
+    Create command line argument parser.
+    
+    Returns:
+        argparse.ArgumentParser: Configured argument parser
+    """
     parser = argparse.ArgumentParser(
         description="Split files into batches of 100 based on filenames in a CSV file"
     )
@@ -27,6 +36,7 @@ def create_parser():
 
 
 def main():
+    """Main entry point for the batch splitter script."""
     # Parse command line arguments
     parser = create_parser()
     args = parser.parse_args()
@@ -105,3 +115,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

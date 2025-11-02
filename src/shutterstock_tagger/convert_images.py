@@ -1,5 +1,11 @@
+"""
+Image format conversion module.
+
+Converts HEIC/HEIF images to JPEG format with sRGB color profile
+and removes unsupported formats like PNG.
+"""
+
 import os
-import sys
 import io
 from PIL import Image, ImageCms
 import pillow_heif
@@ -9,8 +15,18 @@ from tqdm import tqdm
 # Register HEIF opener with Pillow
 pillow_heif.register_heif_opener()
 
+
 def convert_to_jpeg(input_path, output_path):
-    """Convert an image to high-quality JPEG with sRGB color profile."""
+    """
+    Convert an image to high-quality JPEG with sRGB color profile.
+    
+    Args:
+        input_path (str): Path to the input image file
+        output_path (str): Path where the JPEG output will be saved
+        
+    Returns:
+        bool: True if conversion successful, False otherwise
+    """
     try:
         with Image.open(input_path) as img:
             # Convert to RGB if needed (for PNG with transparency, HEIC, etc.)
@@ -44,19 +60,40 @@ def convert_to_jpeg(input_path, output_path):
 
 
 def is_convertible_format(filepath):
-    """Check if file is in a format we can convert to JPEG."""
+    """
+    Check if file is in a format we can convert to JPEG.
+    
+    Args:
+        filepath (str): Path to the file to check
+        
+    Returns:
+        bool: True if file can be converted to JPEG
+    """
     ext = os.path.splitext(filepath)[1].lower()
     return ext in ['.heic', '.heif']
 
 
 def is_deletable_format(filepath):
-    """Check if file is in a format that should be deleted."""
+    """
+    Check if file is in a format that should be deleted.
+    
+    Args:
+        filepath (str): Path to the file to check
+        
+    Returns:
+        bool: True if file should be deleted
+    """
     ext = os.path.splitext(filepath)[1].lower()
     return ext in ['.png']
 
 
 def convert_directory(directory):
-    """Convert HEIC images to JPEG, and remove invalid files."""
+    """
+    Convert HEIC images to JPEG, and remove invalid files.
+    
+    Args:
+        directory (str): Directory path containing images to process
+    """
     files_to_convert = []
     files_to_delete = []
 
@@ -80,7 +117,6 @@ def convert_directory(directory):
                 files_to_delete.append(filepath)
                 continue
 
-
     # Show files to be converted
     if files_to_convert:
         print(f"\nFound {len(files_to_convert)} files to convert to JPEG:")
@@ -103,7 +139,6 @@ def convert_directory(directory):
             # Convert files
             converted_count = 0
 
-            # show tqdm progress bar
             print(f"\nConverting {len(files_to_convert)} files to JPEG...")
             for filepath in tqdm(files_to_convert):
                 # Generate output filename (replace extension with .jpeg)
@@ -111,11 +146,9 @@ def convert_directory(directory):
                 output_path = base_name + ".jpeg"
                 
                 if convert_to_jpeg(filepath, output_path):
-                    # print(f"Converted: {filepath} -> {output_path}")
                     # Remove original file after successful conversion
                     try:
                         os.remove(filepath)
-                        # print(f"Removed original: {filepath}")
                         converted_count += 1
                     except Exception as e:
                         print(f"Error removing original {filepath}: {e}")
@@ -137,8 +170,7 @@ def convert_directory(directory):
         else:
             print("Operation cancelled. No files were modified.")
 
-
-    # convert .JPEG extensions to .jpeg
+    # Normalize .JPEG extensions to .jpeg
     for root, _, files in os.walk(directory):
         for filename in files:
             filename_parts = filename.split('.')
@@ -154,14 +186,14 @@ def convert_directory(directory):
                 if old_path != new_path:
                     try:
                         os.rename(old_path, new_path)
-                        # print(f"Renamed {old_path} to {new_path}")
                     except Exception as e:
                         print(f"Error renaming {old_path}: {e}")
             else:
                 print(f"Unsupported extension: {filename}")
-    
 
-if __name__ == "__main__":
+
+def main():
+    """Main entry point for the convert_images script."""
     parser = argparse.ArgumentParser(
         description="Convert PNG/HEIC images to high-quality JPEG and clean invalid files."
     )
@@ -169,3 +201,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     convert_directory(args.directory)
+
+
+if __name__ == "__main__":
+    main()
+

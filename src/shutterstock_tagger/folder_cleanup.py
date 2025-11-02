@@ -1,11 +1,23 @@
+"""
+Folder cleanup module.
+
+Handles deletion of temporary folders and files after processing.
+"""
+
 import os
 import shutil
+import argparse
 
 
 def delete_folder(folder_path):
-    """Delete a folder if it exists."""
+    """
+    Delete a folder if it exists, with user confirmation.
+    
+    Args:
+        folder_path (str): Path to the folder to delete
+    """
     if os.path.exists(folder_path):
-        # confirm deletion
+        # Confirm deletion
         confirm = input(
             f"Are you sure you want to delete the folder: {folder_path}? (yes/no): "
         )
@@ -23,9 +35,12 @@ def delete_folder(folder_path):
 
 
 def delete_sub_folders(base_dest_dir):
-    # get the error log file
-    error_log_file = os.path.join(os.path.dirname(base_dest_dir), "error_log.txt")
-
+    """
+    Delete temporary subfolders in the destination directory.
+    
+    Args:
+        base_dest_dir (str): Base destination directory
+    """
     delete_folder(f"{base_dest_dir}/yes")
     delete_folder(f"{base_dest_dir}/no")
     delete_folder(f"{base_dest_dir}/low")
@@ -33,6 +48,12 @@ def delete_sub_folders(base_dest_dir):
 
 
 def delete_folders(base_folder):
+    """
+    Delete temporary folders after processing is complete.
+    
+    Args:
+        base_folder (str): Base folder containing all processing directories
+    """
     copied_dir = os.path.join(base_folder, "3_copied_dest")
     delete_sub_folders(copied_dir)
     print(f"Deleted subfolders in {copied_dir}")
@@ -41,10 +62,8 @@ def delete_folders(base_folder):
     print(f"Deleted folder: {os.path.join(base_folder, '1_raw_export')}")
 
 
-if __name__ == "__main__":
-    import argparse
-    import os
-
+def main():
+    """Main entry point for the folder cleanup script."""
     parser = argparse.ArgumentParser(
         description="Delete subfolders in the base destination directory."
     )
@@ -56,7 +75,9 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
+    delete_folders(args.base_folder)
 
-    base_folder = args.base_folder
 
-    delete_folders(base_folder)
+if __name__ == "__main__":
+    main()
+

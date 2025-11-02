@@ -1,5 +1,129 @@
-archive/
-.env
-auto_works
-doc/
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 .DS_Store
+
+# Environment variables and secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# AWS credentials (never commit these!)
+.aws/
+credentials
+config
+
+# Working directories (contain user data)
+archive/
+auto_works/
+work_dir/
+*_raw_export/
+*_binary_output/
+*_copied_dest/
+*_tag_output/
+*_batch_output/
+
+# State files
+state.txt
+error_log.txt
+
+# Output files
+*.csv
+!examples/*.csv
+
+# Documentation build
+doc/
+docs/_build/
+docs/.doctrees/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Logs
+*.log
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Image files (working data, not source code)
+*.jpg
+*.jpeg
+*.png
+*.heic
+*.heif
+!examples/*.jpg
+!examples/*.jpeg
+!docs/images/*.jpg
+!docs/images/*.png
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/

@@ -1,111 +1,287 @@
-# Shutterstock Image Tagger
+# 📸 Shutterstock Image Tagger
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-A comprehensive workflow automation tool for preparing and uploading images to stock photography platforms like Shutterstock.
+An intelligent, automated workflow tool for preparing and uploading images to stock photography platforms like Shutterstock. This tool leverages AWS Bedrock AI to analyze images, generate metadata, and organize files for efficient batch uploading.
 
-## Overview
+## ✨ Features
 
-This project provides an automated pipeline for processing images intended for stock photography platforms. It handles everything from initial image selection and cleaning to metadata generation and batch organization for uploading.
+- 🔄 **Automated Image Processing**: Convert HEIC/HEIF to JPEG with sRGB color profiles
+- 🧹 **Smart Filtering**: Remove images that don't meet stock photography requirements
+- 🤖 **AI-Powered Analysis**: Use AWS Bedrock to evaluate image suitability
+- 🏷️ **Intelligent Tagging**: Generate titles, keywords, and categories automatically
+- 📦 **Batch Organization**: Split images into upload-ready batches of 100
+- 💾 **State Management**: Resume interrupted workflows from where you left off
+- 🔒 **Privacy-First**: No hardcoded credentials or personal information
 
-The workflow uses AWS Bedrock to analyze images for suitability and to generate appropriate titles, tags, and categories according to Shutterstock's requirements.
+## 📋 Table of Contents
 
-## Requirements
+- [Installation](#-installation)
+- [Quick Start](#-quick-start)
+- [Configuration](#-configuration)
+- [Workflow Steps](#-workflow-steps)
+- [Usage Examples](#-usage-examples)
+- [Project Structure](#-project-structure)
+- [Contributing](#-contributing)
+- [License](#-license)
 
-```
-boto3
-pandas
-Pillow
-```
+## 🚀 Installation
 
-Install dependencies using:
+### Prerequisites
+
+- Python 3.8 or higher
+- AWS Account with Bedrock access
+- AWS CLI configured with appropriate credentials
+
+### Install Dependencies
+
 ```bash
+# Clone the repository
+git clone https://github.com/yourusername/shutterstock-image-tagger.git
+cd shutterstock-image-tagger
+
+# Install required packages
 pip install -r requirements.txt
 ```
 
-## Project Structure
+### AWS Setup
 
-The project consists of several Python scripts that each handle a specific step in the workflow:
+1. **Configure AWS CLI**:
+   ```bash
+   aws configure
+   ```
 
-1. `1_clean_files.py` - Initial processing and cleaning of image files (remove files too small/too large/video)
-2. `2_bedrock_run_binary.py` - Uses AWS Bedrock to analyze images for suitability
-3. `3_move_files.py` - Sorts images based on analysis results
-4. `4_delete_folders.py` - Cleans up temporary files and folders (delete photos not suitable for uploads)
-5. `5_generate_tags.py` - Generates tags, titles, and categories for selected images (via AWS bedrock models)
-6. `6_result_analysis.py` - Analyzes the results of the tagging process
-7. `7_split_upload_batch.py` - Splits images into batches for uploading (100 per batch)
-8. `auto_work.py` - *Main script that orchestrates the entire workflow*
+2. **Enable AWS Bedrock**:
+   - Ensure you have access to AWS Bedrock in your region
+   - Request access to the Amazon Nova Lite model (or your preferred model)
 
-## Workflow Process
+3. **Set Environment Variables**:
+   ```bash
+   cp .env.example .env
+   # Edit .env with your AWS configuration
+   ```
 
-The `auto_work.py` script orchestrates a 7-step workflow:
+## ⚡ Quick Start
 
-1. **Clean Files**: Prepares and organizes raw image files for processing
-2. **Binary Analysis**: Uses AWS Bedrock to analyze each image and determine if it's suitable for stock photography based on platform guidelines
-3. **Move Files**: Sorts images into appropriate folders based on the analysis results
-4. **Delete Folders**: Cleans up temporary directories
-5. **Generate Tags**: Generates appropriate titles, tags, and categories for approved images using AI
-6. **Result Analysis**: Analyzes and validates the generated metadata
-7. **Split Upload Batch**: Organizes images into batches of 100 for uploading to Shutterstock
+1. **Prepare Your Images**:
+   ```bash
+   mkdir -p work_dir/1_raw_export
+   # Copy your images to work_dir/1_raw_export/
+   ```
 
-The workflow uses a state system stored in a `state.txt` file to track progress, allowing you to pause and resume the process at any point.
+2. **Run the Workflow**:
+   ```bash
+   python -m shutterstock_tagger.workflow --base_folder work_dir
+   ```
 
-## How to Use
+3. **Upload to Shutterstock**:
+   - Navigate to `work_dir/7_batch_output/`
+   - Upload each batch folder with its corresponding CSV file
 
-1. Create a work directory with a `1_raw_export` folder containing your original images:
+## ⚙️ Configuration
 
-```
-work_dir/
-└── 1_raw_export/
-    ├── image1.jpg
-    ├── image2.jpg
-    └── ...
-```
+### Environment Variables
 
-2. Run the main script, pointing to your work directory:
+Create a `.env` file in the project root (use `.env.example` as a template):
 
 ```bash
-python auto_work.py --base_folder /path/to/work_dir
+# AWS Region
+AWS_REGION=us-east-1
+
+# AWS Bedrock Model ID
+AWS_BEDROCK_MODEL_ID=amazon.nova-lite-v1:0
 ```
 
-3. The script will process all images and create a final batch folder structure ready for upload:
-There is some checkpoint that require verification (enter yes) before folder deletion
+### Customizing Prompts
+
+Edit the prompt files in the `config/` directory to customize AI behavior:
+
+- `system_prompt.txt` - System instructions for tag generation
+- `prompt.txt` - User prompt for tag generation
+- `system_prompt_binary.txt` - System instructions for image classification
+- `prompt_binary.txt` - User prompt for image classification
+
+## 🔄 Workflow Steps
+
+The automated workflow consists of 8 steps:
+
+| Step | Module | Description |
+|------|--------|-------------|
+| 0 | `convert_images` | Convert HEIC/HEIF images to JPEG format |
+| 1 | `clean_files` | Remove images < 4MP or > 15MB |
+| 2 | `binary_classifier` | AI evaluation of image suitability |
+| 3 | `file_organizer` | Sort images by classification results |
+| 4 | `folder_cleanup` | Remove temporary folders |
+| 5 | `tag_generator` | Generate titles, keywords, and categories |
+| 6 | `result_analyzer` | Create CSV files with metadata |
+| 7 | `batch_splitter` | Split into batches of 100 images |
+
+### State Management
+
+The workflow maintains state in `state.txt`, allowing you to:
+- Resume from interruptions
+- Skip completed steps
+- Track progress across sessions
+
+## 📖 Usage Examples
+
+### Run Individual Steps
+
+```bash
+# Convert images only
+python -m shutterstock_tagger.convert_images work_dir/1_raw_export
+
+# Clean files only
+python -m shutterstock_tagger.clean_files work_dir/1_raw_export
+
+# Generate tags for specific folder
+python -m shutterstock_tagger.tag_generator \
+  --image_folder work_dir/3_copied_dest/high \
+  --output_folder work_dir/5_tag_output
+```
+
+### Custom Batch Size
+
+To modify the batch size, edit `src/shutterstock_tagger/batch_splitter.py`:
+
+```python
+batch_size = 50  # Change from default 100
+```
+
+## 📁 Project Structure
+
+```
+shutterstock-image-tagger/
+├── src/
+│   └── shutterstock_tagger/
+│       ├── __init__.py
+│       ├── workflow.py              # Main orchestrator
+│       ├── bedrock_client.py        # AWS Bedrock API client
+│       ├── convert_images.py        # Image format conversion
+│       ├── clean_files.py           # File filtering
+│       ├── binary_classifier.py     # AI suitability check
+│       ├── file_organizer.py        # File organization
+│       ├── folder_cleanup.py        # Cleanup utilities
+│       ├── tag_generator.py         # AI tag generation
+│       ├── result_analyzer.py       # CSV creation
+│       └── batch_splitter.py        # Batch organization
+├── config/
+│   ├── prompt.txt                   # Tag generation prompt
+│   ├── prompt_binary.txt            # Classification prompt
+│   ├── system_prompt.txt            # Tag generation system prompt
+│   └── system_prompt_binary.txt     # Classification system prompt
+├── examples/                        # Example usage and data
+├── docs/                           # Additional documentation
+├── .github/
+│   └── workflows/                  # CI/CD workflows
+├── .gitignore
+├── .env.example
+├── LICENSE
+├── README.md
+├── CONTRIBUTING.md
+└── requirements.txt
+```
+
+## 🎯 Output Structure
+
+After processing, your work directory will contain:
 
 ```
 work_dir/
-└── 7_batch_output/
-    ├── batch_1/
-    │   ├── image1.jpg
-    │   ├── image2.jpg
-    │   └── ...
-    ├── batch_2/
-    │   └── ...
-    └── batch_1_tags.csv
-    └── batch_2_tags.csv
+├── 1_raw_export/              # Original images (deleted after step 4)
+├── 2_binary_output/           # Classification results
+├── 3_copied_dest/
+│   ├── high/                  # High-quality suitable images
+│   ├── medium/                # Medium-quality images
+│   └── low/                   # Low-quality images
+├── 5_tag_output/              # AI-generated tags
+├── 6_image_tags.csv           # Master CSV file
+├── 7_batch_output/
+│   ├── batch_1/               # 100 images
+│   ├── batch_1_tags.csv       # Metadata for batch 1
+│   ├── batch_2/
+│   ├── batch_2_tags.csv
+│   └── ...
+├── state.txt                  # Workflow state
+└── error_log.txt              # Error logs
 ```
 
-4. Upload to shuttlestock batch by batch and using the csv files for batch upload (100 each time.)
+## 🤝 Contributing
 
-## Prompt Templates
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details on:
 
-The project includes several prompt templates for the AI analysis:
+- Code of Conduct
+- Development setup
+- Submitting pull requests
+- Reporting bugs
+- Suggesting enhancements
 
-- `prompt.txt` - Used for generating titles, tags, and categories
-- `prompt_binary.txt` - Used for binary classification of images
-- `system_prompt.txt` - System-level prompt for the AI
-- `system_prompt_binary.txt` - System-level prompt for binary classification
+## 📝 Requirements
 
-## State Management
+See `requirements.txt` for full dependencies:
 
-The workflow maintains its state in a `state.txt` file in the work directory. This allows the process to be resumed from where it left off if interrupted. Each step updates the state file upon successful completion.
+- `boto3` - AWS SDK for Python
+- `pandas` - Data manipulation and CSV handling
+- `Pillow` - Image processing
+- `pillow-heif` - HEIC/HEIF format support
+- `tqdm` - Progress bars
 
-## Output Structure
+## 🔒 Security & Privacy
 
-After processing, your images will be organized as follows:
+- **No Hardcoded Credentials**: All AWS credentials are managed via environment variables or AWS CLI
+- **Local Processing**: Images are processed locally; only base64-encoded data is sent to AWS Bedrock
+- **Gitignore Protection**: Working directories and sensitive files are excluded from version control
+- **Environment Variables**: Use `.env` file (never committed) for configuration
 
-- Selected images with high likelihood of acceptance: `3_copied_dest/high/`
-- Generated tags: `5_tag_output/`
-- Upload-ready batches: `7_batch_output/`
+## 🐛 Troubleshooting
 
-Each batch in the output directory (`7_batch_output/`) includes:
-- Up to 100 images per batch
-- A corresponding CSV file with all the metadata needed for upload
+### Common Issues
+
+**AWS Credentials Error**:
+```bash
+# Ensure AWS CLI is configured
+aws configure
+# Or set environment variables
+export AWS_ACCESS_KEY_ID=your_key
+export AWS_SECRET_ACCESS_KEY=your_secret
+```
+
+**Bedrock Access Denied**:
+- Verify you have access to AWS Bedrock in your region
+- Check that your IAM role has `bedrock:InvokeModel` permissions
+
+**Image Size Errors**:
+- Images must be between 4MP and 15MB
+- Use step 1 (clean_files) to filter automatically
+
+## 📊 Roadmap
+
+- [ ] Support for additional AI models (OpenAI, Anthropic)
+- [ ] Web UI for easier workflow management
+- [ ] Bulk editing of generated tags
+- [ ] Integration with other stock platforms (Adobe Stock, Getty Images)
+- [ ] Docker containerization
+- [ ] Automated testing suite
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- AWS Bedrock team for the AI models
+- Shutterstock for their comprehensive tagging guidelines
+- Open source community for the excellent Python libraries
+
+## 📧 Support
+
+- 📖 [Documentation](docs/)
+- 🐛 [Issue Tracker](https://github.com/yourusername/shutterstock-image-tagger/issues)
+- 💬 [Discussions](https://github.com/yourusername/shutterstock-image-tagger/discussions)
+
+---
+
+**Made with ❤️ for photographers and content creators**
